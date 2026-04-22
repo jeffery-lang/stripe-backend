@@ -33,8 +33,8 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'payment',
       payment_method_types: ['card'],
       line_items,
-      success_url: 'http://127.0.0.1:5500/success.html',
-      cancel_url: 'http://127.0.0.1:5500/cancel.html',
+      success_url: 'https://diybalustrades.co.uk/success.html',
+      cancel_url: 'https://diybalustrades.co.uk/cancel.html',
     });
 
     res.json({ url: session.url });
