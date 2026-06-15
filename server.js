@@ -29,7 +29,6 @@ app.post('/create-checkout-session', async (req, res) => {
 
     const line_items = items.map((item) => {
       const name = item.name || 'DIY Balustrades Item';
-
       const price = Number(String(item.price).replace(/[^\d.]/g, ''));
       const quantity = Number(item.quantity) || 1;
 
@@ -37,7 +36,7 @@ app.post('/create-checkout-session', async (req, res) => {
         throw new Error(`Invalid price for item: ${name}`);
       }
 
-      let description;
+      let description = '';
 
       if (item.builderData) {
         const d = item.builderData;
@@ -51,19 +50,22 @@ app.post('/create-checkout-session', async (req, res) => {
         if (d.finish) details.push(`Finish: ${d.finish}`);
         if (d.mounting) details.push(`Mounting: ${d.mounting}`);
 
-        if (details.length) description = details.join(' | ');
+        description = details.join(' | ');
       }
 
       const product_data = { name };
-      if (description) product_data.description = description;
+
+      if (description) {
+        product_data.description = description;
+      }
 
       return {
         price_data: {
           currency: 'gbp',
           product_data,
-          unit_amount: Math.round(price * 100),
+          unit_amount: Math.round(price * 100)
         },
-        quantity,
+        quantity
       };
     });
 
@@ -72,20 +74,21 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'payment',
       line_items,
       shipping_address_collection: {
-        allowed_countries: ['GB'],
+        allowed_countries: ['GB']
       },
       success_url: 'https://diybalustrades.co.uk/success.html',
       cancel_url: 'https://diybalustrades.co.uk/cancel.html',
       metadata: {
         first_name: customer?.firstName || '',
         last_name: customer?.lastName || '',
+        email: customer?.email || '',
         phone: customer?.phone || '',
         address1: customer?.address1 || '',
         address2: customer?.address2 || '',
         city: customer?.city || '',
         postcode: customer?.postcode || '',
-        notes: customer?.notes || '',
-      },
+        notes: customer?.notes || ''
+      }
     };
 
     if (customer?.email) {
@@ -103,6 +106,6 @@ app.post('/create-checkout-session', async (req, res) => {
 
 const PORT = process.env.PORT || 4242;
 
-app.listen(PORT, () => {
-  console.log(`Stripe server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Stripe server running on http://0.0.0.0:${PORT}`);
 });
